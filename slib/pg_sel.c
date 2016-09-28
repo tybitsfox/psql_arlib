@@ -82,7 +82,8 @@ int ng_sel_malloc()
 	}
 	nrow=PQntuples(res);
 	ncol=PQnfields(res);
-	m=(char **)malloc(sizeof(void)*ncol);
+	lp=malloc(sizeof(char*)*ncol);
+	m=(char **)lp;
 	for(i=0;i<ncol;i++)
 	{
 		c=malloc(PERSIZE);
@@ -90,12 +91,13 @@ int ng_sel_malloc()
 		{
 			for(j=0;j<i;j++)
 				free(m[j]);
+			free(lp);
 			printf("内存分配失败！\n");
 			return 1;
 		}
 		m[i]=c;
 	}
-	lp=(void*)m;
+//	lp=(void*)m;
 	return 0;
 }//}}}
 //{{{int pg_sel_begin(struct pg_struct *p)
@@ -186,7 +188,7 @@ void pg_sel_end()
 				p=(char **)lp;
 				for(i=0;i<ncol;i++)
 					free(p[i]);
-				//free(lp);
+				free(lp);
 				lp=NULL;
 			}
 			ncol=0;nrow=0;indicator=0;
