@@ -28,7 +28,7 @@ int	ng_sel_crtcon(struct pg_struct *p)
 	i=strlen(m);m+=i;i=SLEN-i;
 	if(strlen(p->host) > 0)
 	{
-		snprintf(m,i," host=%",p->host);
+		snprintf(m,i," host=%s",p->host);
 		m=constr;i=strlen(m);
 		m+=i;i=SLEN-i;		
 	}
