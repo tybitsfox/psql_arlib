@@ -211,7 +211,36 @@ void pg_sel_end()
 		exit(0);
 	return;
 }//}}}
-
+//{{{-----------------------------------------------------
+//}}}
+//{{{int pg_cmd_begin(struct pg_struct *p)
+int pg_cmd_begin(struct pg_struct *p)
+{
+	if(ng_sel_crtcon(p))
+		pg_cmd_end();
+	conn=PQconnectdb(constr);
+	if(PQstatus(conn) != CONNECTION_OK)
+	{
+		printf("connect error\n%s\n",constr);
+		pg_cmd_end();
+	}
+	res=PQexec(conn,p->sql);
+	if(PQresultStatus(res) != PGRES_COMMAND_OK)
+		printf("exec error\n");
+	pg_cmd_end();
+	return 0;
+}//}}}
+//{{{void pg_cmd_end()
+void pg_cmd_end()
+{
+	if(res != NULL)
+		PQclear(res);
+	res=NULL;
+	if(conn != NULL)
+		PQfinish(conn);
+	conn=NULL;
+	exit(0);
+}//}}}
 
 
 
