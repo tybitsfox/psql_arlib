@@ -16,6 +16,7 @@
 #define		EX_STEP4	"END"
 #define		SLEN		4096
 #define		PERSIZE		1024
+#define		sfile		"./pgsql_set.ini"
 //}}}
 
 //{{{结构的定义 struct pg_struct
@@ -48,6 +49,10 @@ int	ng_sel_malloc();					//负责内存申请分配的函数
 //{{{新建，编辑，删除相关操作的函数定义
 int pg_cmd_begin(struct pg_struct *p);  //命令操作函数的初始化函数
 void pg_cmd_end();
+//}}}
+//{{{2016-10-1添加的用于分析参数或配置文件来获取用户录入信息的函数
+int parse_para(int argc,char **argv,struct pg_struct *p);
+int from_ini(struct pg_struct *p);
 //}}}
 
 
