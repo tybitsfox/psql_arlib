@@ -1,14 +1,18 @@
 #include"pg_sel.h"
+#define	sfile		"./pgsql_set.ini"
+
 extern char *lp;
 extern int	nrow;
 extern int	ncol;
 
+char ich[7][10]={"QDBNAME=","QSQL=","QHOST=","QUSER=","QPWD=","QPORT=","QHADDR="};
 char pch[7][3]={"-d\0","-s\0","-h\0","-u\0","-p\0","-P\0","-a\0"};
 char *pp[7];
 int  pin[7]={1,2,4,8,16,32,64};
 int  plen[7];
 
 int parse_para(int argc,char **argv,struct pg_struct *p);
+int from_ini(struct pg_struct *p);
 //{{{int main(int argc,char **argv)
 int main(int argc,char **argv)
 {
@@ -32,6 +36,9 @@ Example:\n%s -d ty004 [-h localhost -u root -p password -P 5432 -a 192.168.1.2] 
 			return 0;
 		case 4://must be input
 			printf("The datebase name and SQL string must be input!\n");
+			return 0;
+		case 5://open setup file error
+			printf("open setup file error\n");
 			return 0;
 	};
 	printf("dbname=%s user=%s password=%s host=%s hostaddr=%s port=%s\nconnstr:%s\n",p.dbname,p.user,p.pwd,\
@@ -65,8 +72,19 @@ Example:\n%s -d ty004 [-h localhost -u root -p password -P 5432 -a 192.168.1.2] 
 int parse_para(int argc,char **argv,struct pg_struct *p)
 {//5,7,9,11,13,15 enabled
 	int i,j,k,l;
+	memset((void*)p,0,sizeof(struct pg_struct));
+	pp[0]=p->dbname;pp[1]=p->sql;
+	pp[2]=p->host;pp[3]=p->user;
+	pp[4]=p->pwd;pp[5]=p->port;
+	pp[6]=p->haddr;
+	plen[0]=sizeof(p->dbname);plen[1]=sizeof(p->sql);
+	plen[2]=sizeof(p->host);plen[3]=sizeof(p->user);
+	plen[4]=sizeof(p->pwd);plen[5]=sizeof(p->port);
+	plen[6]=sizeof(p->haddr);
 	switch(argc)
 	{
+		case 1:	//new,use setup-file
+			return from_ini(p); 
 		case 5:
 		case 7:
 		case 9:
@@ -77,15 +95,6 @@ int parse_para(int argc,char **argv,struct pg_struct *p)
 		default:
 			return 3;
 	};
-	memset((void*)p,0,sizeof(struct pg_struct));
-	pp[0]=p->dbname;pp[1]=p->sql;
-	pp[2]=p->host;pp[3]=p->user;
-	pp[4]=p->pwd;pp[5]=p->port;
-	pp[6]=p->haddr;
-	plen[0]=sizeof(p->dbname);plen[1]=sizeof(p->sql);
-	plen[2]=sizeof(p->host);plen[3]=sizeof(p->user);
-	plen[4]=sizeof(p->pwd);plen[5]=sizeof(p->port);
-	plen[6]=sizeof(p->haddr);
 	k=0;
 	for(i=1;i<(argc-1);i++)
 	{
@@ -110,5 +119,58 @@ int parse_para(int argc,char **argv,struct pg_struct *p)
 		return 4;//must be input
 	return 0;
 }//}}}
+
+//{{{int from_ini(struct pg_struct *p)
+int from_ini(struct pg_struct *p)
+{
+	int i,j,k;
+	char *c1,*c2,ch[PERSIZE];
+	FILE *file=fopen(sfile,"r");
+	if(file==NULL)
+		return 5;	//open file error
+	memset(ch,0,sizeof(ch));
+	c1=ch;
+	while(fgets(ch,PERSIZE,file))
+	{
+		for(i=0;i<7;i++)
+		{
+			if(strstr(ch,ich[i])==c1)
+			{
+				k=strlen(ch)-1;
+				if(ch[k] == '\n')
+					ch[k]=0;
+				if(ch[k-1]=='\r') //no use in linux
+					ch[k-1]=0;
+				c2=c1+strlen(ich[i]);
+				if(strlen(c2) >= plen[i])
+				{
+					fclose(file);
+					return 2;//buffer size too less
+				}
+				if(strlen(pp[i])>0)
+				{
+					fclose(file);
+					return 1;//input repeat
+				}
+				memcpy(pp[i],c2,strlen(c2));
+				break;
+			}
+		}
+		memset(ch,0,sizeof(ch));
+	}
+	fclose(file);
+	if(strlen(pp[0])<=0 || strlen(pp[1])<=0)
+		return 4;//must be input
+	return 0;
+}//}}}
+
+
+
+
+
+
+
+
+
 
 
