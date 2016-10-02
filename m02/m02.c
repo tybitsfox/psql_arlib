@@ -48,6 +48,7 @@ Example:\n%s -d ty004 [-h localhost -u root -p password -P 5432 -a 192.168.1.2] 
 	pg_sel_end(); */
 //	if(pg_cmd_begin(&p) == 0)
 //		pg_cmd_end();
+	help();
 	return 0;
 }//}}}
 

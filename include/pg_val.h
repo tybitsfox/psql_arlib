@@ -8,6 +8,10 @@
 #include"clsscr.h"
 #include<postgresql/libpq-fe.h>
 #endif
+#define	COLOR_BLUE	"\033[49;34;25m%s\033[0m"
+#define COLOR_GREEN	"\033[49;32;25m%s\033[0m"
+#define	COLOR_RED	"\033[49;31;25m%s\033[0m"
+
 //这个头文件将定义一些库函数所用的变量
 PGconn		*conn=NULL;
 PGresult	*res=NULL;
